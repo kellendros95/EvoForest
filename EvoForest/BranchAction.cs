@@ -38,7 +38,11 @@ namespace EvoForest
             _center = branch.End + new Vector2f((float)Math.Cos(_angle) * _radius, (float)Math.Sin(_angle) * _radius);
         }
         public override float Cost { get => Settings.LeafCost * _radius; }
-        public override bool Valid { get => World.ValidateLeaf(_branch.GetTree, _center, _radius); }
+        public override bool Valid 
+        {
+            get => World.ValidateLeaf(_branch.GetTree, _center, _radius)
+                && _branch.ValidateMomentum(_radius * _radius * Settings.LeafMass, _center);
+        }
         public override void Execute()
             => new Leaf(_branch, _center, _radius);
     }
@@ -57,7 +61,11 @@ namespace EvoForest
             _gene = gene;
         }
         public override float Cost { get => Settings.BranchCost * _length; }
-        public override bool Valid { get => World.ValidateBranch(_branch, _root, _end); }
+        public override bool Valid 
+        {
+            get => World.ValidateBranch(_branch, _root, _end)
+                && _branch.ValidateMomentum(_length * Settings.BranchMass, (_root + _end) / 2);
+        }
         public override void Execute()
             => new Branch(_branch, _root, _end, _angle, _length, _gene);
     }

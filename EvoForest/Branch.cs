@@ -14,8 +14,8 @@ namespace EvoForest
         static Random rnd = new Random();
         Tree _tree;
         Branch _parent;
-        Vector2f _root, _end;
-        float _angle, _length;
+        Vector2f _root, _end, _massCenter;
+        float _angle, _length, _mass;
         Gene _g;
         Vertex[] _drawLine;
         List<Branch> _branches = new List<Branch>();
@@ -27,6 +27,20 @@ namespace EvoForest
         public Vector2f Root { get => _root; }
         public bool Active { get => _g != null; }
         public float Loss { get => _length * Settings.BranchLoss; }
+        public bool ValidateMomentum(float newMass, Vector2f newMassCenter)
+        {
+            Vector2f sumCenter = (_massCenter * _mass + newMassCenter * newMass) / (_mass + newMass);
+            if (Math.Abs(sumCenter.X - (_root.X + _end.X) / 2) * (_mass + newMass) > Settings.MaxMomentum)
+                return false;
+            if (_parent == null) return true;
+            return _parent.ValidateMomentum(newMass, newMassCenter);
+        }
+        public void AddMass(float newMass, Vector2f newMassCenter)
+        {
+            _massCenter = (_massCenter * _mass + newMassCenter * newMass) / (_mass + newMass);
+            _mass += newMass;
+            if (_parent != null) _parent.AddMass(newMass, newMassCenter);
+        }
         public Branch(Branch parent, Vector2f root, Vector2f end, float angle, float length, Gene g)
         {
             _parent = parent;
@@ -35,6 +49,9 @@ namespace EvoForest
             _end = end;
             _angle = angle;
             _length = length;
+            _mass = _length * Settings.BranchMass;
+            _massCenter = (_root + _end) / 2;
+            parent.AddMass(_mass, _massCenter);
             _g = g;
             _drawLine = new Vertex[] { new Vertex(_root, Color.White), new Vertex(_end, Color.White) };
             World.AddBranch(this);
@@ -49,6 +66,8 @@ namespace EvoForest
             _length = (Settings.MinBranchLength + Settings.MaxBranchLength) / 2;
             _angle = -(float)Math.PI / 2;
             _end = new Vector2f(x, Settings.BottomY - _length);
+            _mass = _length * Settings.BranchMass;
+            _massCenter = (_root + _end) / 2;
             _g = g;
             _drawLine = new Vertex[] { new Vertex(_root, Color.White), new Vertex(_end, Color.White) };
             World.AddBranch(this);

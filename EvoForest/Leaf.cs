@@ -15,7 +15,6 @@ namespace EvoForest
         Vector2f _center;
         float _radius;
         CircleShape _circle;
-        //public float Mass { get => _radius * _radius * Settings.LeafMass; }
         public Vector2f Center { get => _center; }
         public Tree GetTree { get => _tree; }
         public float Loss { get => _radius * Settings.LeafLoss; }
@@ -32,6 +31,7 @@ namespace EvoForest
             _circle = new CircleShape(_radius);
             _circle.Position = (_center - new Vector2f(_radius, _radius));
             _circle.FillColor = _tree.LeafColor;
+            branch.AddMass(_radius * _radius * Settings.LeafMass, _center);
             World.AddLeaf(this);
             _tree.AddLeaf(this);
             branch.AddLeaf(this);
