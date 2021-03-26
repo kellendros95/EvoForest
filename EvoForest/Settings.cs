@@ -34,12 +34,13 @@ namespace EvoForest
         public const float BranchCost = 2.0f;
         public const float BranchMass = 5.0f;
         public const float MinBranchLength = 0.2f;
-        public const float MaxBranchLength = 1.0f;
+        public const float MaxBranchLength = 0.5f;
 
         // Параметры семян
-        public const float SeedEfficiency = 0.5f;
-        public const float MaxSeedParam = 40.0f;
-        public const float SeedScatter = 1.0f;
+        public const float SeedEnergyEfficiency = 0.5f;
+        public const float MaxSeedEnergy = 40.0f;
+        public const float MaxSeedScatter = 2.0f;
+        public const float SeedScatterCost = 5.0f;
         
     }
 }

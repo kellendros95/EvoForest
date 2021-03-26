@@ -21,22 +21,35 @@ namespace EvoForest
         static List<Branch> _branches = new List<Branch>();
         static List<Leaf> _leaves = new List<Leaf>();
         public Branch Parent { get => _parent; }
-        public Branch(Branch parent, Tree tree, Vector2f root, float angle, float length, Gene g)
+        public Tree GetTree { get => _tree; }
+        public float Angle { get => _angle; }
+        public Vector2f End { get => _end; }
+        public Vector2f Root { get => _root; }
+        public Branch(Branch parent, Vector2f root, Vector2f end, float angle, float length, Gene g)
         {
-            _tree = tree;
+            _parent = parent;
+            _tree = parent.GetTree;
             _root = root;
+            _end = end;
             _angle = angle;
             _length = length;
-            _parent = parent;
-            _g = g;
-            _end = new Vector2f(
-                _root.X + (float)Math.Cos(_angle) * _length,
-                _root.Y + (float)Math.Sin(_angle) * _length);
             _g = g;
             _SetColor(Color.White);
             World.AddBranch(this);
             _tree.AddBranch(this);
-            if (_parent != null) _parent.AddBranch(this);
+            _parent.AddBranch(this);
+        }
+        public Branch (Tree tree, float x, Gene g)
+        {
+            _parent = null;
+            _tree = tree;
+            _root = new Vector2f(x, Settings.BottomY);
+            _length = (Settings.MinBranchLength + Settings.MaxBranchLength) / 2;
+            _angle = -(float)Math.PI / 2;
+            _end = new Vector2f(x, Settings.BottomY - _length);
+            _SetColor(Color.White);
+            World.AddBranch(this);
+            _tree.AddBranch(this);
         }
         public void AddBranch(Branch b)
             => _branches.Add(b);
@@ -52,10 +65,28 @@ namespace EvoForest
             if (z01 * z02 > 0) return false;
             return true;
         }
+        public void DropLeaves()
+        {
+            foreach (Leaf leaf in _leaves)
+                World.RemoveLeaf(leaf);
+            _leaves = new List<Leaf>();
+        }
+        void _GrowLeaf(GrowInfo grow)
+        {
+            float angle = _angle + (float)((grow.param1 - 0.5f) * Math.PI) * _tree.Mirrored;
+            // ОСТАНОВИЛСЯ ТУТ
+        }
         public bool Grow() // Возвращает, надо ли ветку вернуть в очередь роста
         {
             GrowInfo grow = _g.Grow();
-            // ОСТАНОВИЛСЯ ТУТ
+            switch (grow.growOption)
+            {
+                case GrowOption.Drop:
+                    _DropLeaves();
+                    break;
+                case GrowOption.Leaf:
+
+            }
         }
         void _SetColor(Color c)
         {

@@ -15,24 +15,23 @@ namespace EvoForest
         Vector2f _center;
         float _radius;
         CircleShape _circle;
-        public float Mass
+        public float Mass { get => _radius * _radius * Settings.LeafMass; }
+        public Vector2f Center { get => _center; }
+        public Tree GetTree { get => _tree; }
+        public bool Intersect(Vector2f center, float radius)
         {
-            get => _radius * _radius * Settings.LeafMass;
+            float dsqr = (center.X - _center.X) * (center.X - _center.X) + (center.Y - _center.Y) * (center.Y - _center.Y);
+            return (dsqr < (radius + _radius) * (radius + _radius));
         }
-        public Vector2f Center
+        public Leaf(Branch branch, Vector2f center, float radius)
         {
-            get => _center;
-        }
-        public Leaf(Tree tree, Branch branch, Vector2f growPoint, float angle, float radius)
-        {
-            _tree = tree;
+            _tree = branch.GetTree;
             _radius = radius;
-            _center = growPoint + new Vector2f((float)Math.Cos(angle), (float)Math.Sin(angle));
+            _center = center;
             _circle = new CircleShape(_radius);
             _circle.Position = (_center - new Vector2f(_radius, _radius));
             _circle.FillColor = _tree.LeafColor;
             World.AddLeaf(this);
-            _tree.AddLeaf(this);
             branch.AddLeaf(this);
         }
         public float? RayIntersectionY(float x)

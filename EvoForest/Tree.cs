@@ -10,12 +10,20 @@ namespace EvoForest
     class Tree
     {
         Dna _dna;
-        static List<Branch> _branches = new List<Branch>();
-        static List<Leaf> _leaves = new List<Leaf>();
+        List<Branch> _branches = new List<Branch>();
+        int _mirrored;
+        float _energy;
+        public Dna GetDna { get => _dna; }
         public Color LeafColor { get => _dna.GetColor; }
+        public int Mirrored { get => _mirrored; }
+        public Tree(Dna dna, float x, float energy)
+        {
+            _dna = dna;
+            new Branch(this, x, _dna[0]);
+            World.AddTree(this);
+            _energy = energy;
+        }
         public void AddBranch(Branch b)
-            => _branches.Add(b);
-        public void AddLeaf(Leaf leaf)
-            => _leaves.Add(leaf);
+            => _branches.Add(b); //TODO
     }
 }
