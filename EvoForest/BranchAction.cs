@@ -18,7 +18,9 @@ namespace EvoForest
     class DropLeaves : BranchAction
     {
         public DropLeaves(Branch branch)
-            => _branch = branch;
+        {
+            _branch = branch;
+        }
         public override float Cost { get => 0.0f; }
         public override bool Valid { get => true; }
         public override void Execute()
@@ -55,7 +57,7 @@ namespace EvoForest
             _gene = gene;
         }
         public override float Cost { get => Settings.BranchCost * _length; }
-        public override bool Valid { get => World.ValidateBranch(_root, _end); }
+        public override bool Valid { get => World.ValidateBranch(_branch, _root, _end); }
         public override void Execute()
             => new Branch(_branch, _root, _end, _angle, _length, _gene);
     }
@@ -70,7 +72,7 @@ namespace EvoForest
             while ((_x < 0) || (_x >= Settings.MaxX))
                 _x = branch.End.X + (float)(rnd.NextDouble() - 0.5) * _scatter;
             _energy = Settings.MaxSeedEnergy * param2;
-            _dna = branch.GetTree.GetDna;
+            _dna = branch.GetTree.GetDna.Child();
             _cost = _energy / Settings.SeedEnergyEfficiency + param1 * Settings.SeedScatterCost;
         }
         public override float Cost { get => _cost; }

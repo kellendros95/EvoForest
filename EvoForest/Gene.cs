@@ -42,7 +42,7 @@ namespace EvoForest
             }
             float next = _p[2 + Settings.GrowVariants + rnd.Next(Settings.NextGeneVariants)];
             if ((_dnaInd == Settings.DnaLen - 1) || (next < 0.2f))
-                grow.nextGene = -1;
+                grow.nextGene = null;
             else 
                 grow.nextGene = _dnaInd + 1 + (int)((next - 0.2f) / (0.8f / (Settings.DnaLen - 1 - _dnaInd)));
             return grow;

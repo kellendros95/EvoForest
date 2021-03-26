@@ -12,6 +12,6 @@ namespace EvoForest
         public float param1;
         public float param2;
         public int childGene;
-        public int nextGene;
+        public int? nextGene;
     }
 }

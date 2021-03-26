@@ -18,13 +18,15 @@ namespace EvoForest
         float _angle, _length;
         Gene _g;
         Vertex[] _drawLine;
-        static List<Branch> _branches = new List<Branch>();
-        static List<Leaf> _leaves = new List<Leaf>();
+        List<Branch> _branches = new List<Branch>();
+        List<Leaf> _leaves = new List<Leaf>();
         public Branch Parent { get => _parent; }
         public Tree GetTree { get => _tree; }
         public float Angle { get => _angle; }
         public Vector2f End { get => _end; }
         public Vector2f Root { get => _root; }
+        public bool Active { get => _g != null; }
+        public float Loss { get => _length * Settings.BranchLoss; }
         public Branch(Branch parent, Vector2f root, Vector2f end, float angle, float length, Gene g)
         {
             _parent = parent;
@@ -34,7 +36,7 @@ namespace EvoForest
             _angle = angle;
             _length = length;
             _g = g;
-            _SetColor(Color.White);
+            _drawLine = new Vertex[] { new Vertex(_root, Color.White), new Vertex(_end, Color.White) };
             World.AddBranch(this);
             _tree.AddBranch(this);
             _parent.AddBranch(this);
@@ -47,7 +49,8 @@ namespace EvoForest
             _length = (Settings.MinBranchLength + Settings.MaxBranchLength) / 2;
             _angle = -(float)Math.PI / 2;
             _end = new Vector2f(x, Settings.BottomY - _length);
-            _SetColor(Color.White);
+            _g = g;
+            _drawLine = new Vertex[] { new Vertex(_root, Color.White), new Vertex(_end, Color.White) };
             World.AddBranch(this);
             _tree.AddBranch(this);
         }
@@ -68,30 +71,31 @@ namespace EvoForest
         public void DropLeaves()
         {
             foreach (Leaf leaf in _leaves)
+            {
+                _tree.RemoveLeaf(leaf);
                 World.RemoveLeaf(leaf);
+            }
             _leaves = new List<Leaf>();
         }
-        void _GrowLeaf(GrowInfo grow)
-        {
-            float angle = _angle + (float)((grow.param1 - 0.5f) * Math.PI) * _tree.Mirrored;
-            // ОСТАНОВИЛСЯ ТУТ
-        }
-        public bool Grow() // Возвращает, надо ли ветку вернуть в очередь роста
+        public BranchAction Grow()
         {
             GrowInfo grow = _g.Grow();
+            _g = (grow.nextGene != null) ? _tree.GetDna[(int)grow.nextGene] : null;
             switch (grow.growOption)
             {
-                case GrowOption.Drop:
-                    _DropLeaves();
-                    break;
-                case GrowOption.Leaf:
-
-            }
+                case GrowOption.Drop: _SetColor(Color.Red); return new DropLeaves(this);
+                case GrowOption.Leaf: _SetColor(Color.Green); return new GrowLeaf(this, grow.param1, grow.param2);
+                case GrowOption.Branch: _SetColor(Color.Blue); return new GrowBranch(this, grow.param1, grow.param2, _tree.GetDna[grow.childGene]);
+                case GrowOption.Seed: _SetColor(Color.Yellow); return new GrowSeed(this, grow.param1, grow.param2);
+                default: throw new KeyNotFoundException();
+            };
         }
         void _SetColor(Color c)
         {
             _drawLine[0].Color = c;
             _drawLine[1].Color = c;
         }
+        public void Draw(RenderWindow window)
+            => window.Draw(_drawLine, PrimitiveType.Lines);
     }
 }
