@@ -8,6 +8,7 @@ namespace EvoForest
 {
     enum GrowOption
     {
+        None,
         Drop,
         Leaf,
         Seed,

@@ -17,6 +17,7 @@ namespace EvoForest
         public const float Light = 0.5f;
         public const float BaseTreeLoss = 0.05f;
         public const float InitTreeEnergy = 10.0f;
+        public const float MaxMomentum = 500.0f;
 
         // Параметры генов и ДНК
         public const int DnaLen = 20;
@@ -25,16 +26,16 @@ namespace EvoForest
         public const int GeneSize = 2 + GrowVariants + NextGeneVariants;
 
         // Параметры листьев
-        public const float LeafLoss = 0.1f;
+        public const float LeafLoss = 0.2f;
         public const float LeafCost = 1.0f;
-        //public const float LeafMass = 1.0f;
+        public const float LeafMass = 1.0f;
         public const float MinLeafRadius = 0.1f;
         public const float MaxLeafRadius = 0.3f;
 
         // Параметры веток
         public const float BranchLoss = 0.01f;
         public const float BranchCost = 2.0f;
-        //public const float BranchMass = 5.0f;
+        public const float BranchMass = 5.0f;
         public const float MinBranchLength = 0.2f;
         public const float MaxBranchLength = 0.5f;
 

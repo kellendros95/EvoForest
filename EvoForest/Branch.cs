@@ -106,7 +106,7 @@ namespace EvoForest
                 case GrowOption.Leaf: _SetColor(Color.Green); return new GrowLeaf(this, grow.param1, grow.param2);
                 case GrowOption.Branch: _SetColor(Color.Blue); return new GrowBranch(this, grow.param1, grow.param2, _tree.GetDna[grow.childGene]);
                 case GrowOption.Seed: _SetColor(Color.Yellow); return new GrowSeed(this, grow.param1, grow.param2);
-                default: throw new KeyNotFoundException();
+                default: _SetColor(Color.White); return null;
             };
         }
         void _SetColor(Color c)

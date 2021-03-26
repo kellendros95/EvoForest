@@ -29,12 +29,14 @@ namespace EvoForest
             grow.param1 = _p[0];
             grow.param2 = _p[1];
             float variant = _p[2 + rnd.Next(Settings.GrowVariants)];
-            if (variant < 0.2f)
+            if (variant < 0.15f)
                 grow.growOption = GrowOption.Leaf;
-            else if (variant < 0.4f)
+            else if (variant < 0.30f)
                 grow.growOption = GrowOption.Seed;
-            else if (variant < 0.6f)
+            else if (variant < 0.45f)
                 grow.growOption = GrowOption.Drop;
+            else if (variant < 0.6f)
+                grow.growOption = GrowOption.None;
             else
             {
                 grow.growOption = GrowOption.Branch;
