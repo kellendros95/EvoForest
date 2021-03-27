@@ -23,7 +23,7 @@ namespace EvoForest
         public const float MaxMomentum = 500.0f;
 
         // Параметры генов и ДНК
-        public const int DnaLen = 20;
+        public const int DnaLen = 27;
         public const int GrowVariants = 1;
         public const int NextGeneVariants = 2;
         public const int GeneSize = 2 + GrowVariants + NextGeneVariants;
@@ -51,12 +51,12 @@ namespace EvoForest
             => _geneColors[i];
         static public void InitColors()
         {
-            _geneColors = new Color[64];
-            for (int i = 0; i < 64; i++)
+            _geneColors = new Color[27];
+            for (int i = 0; i < 27; i++)
                 _geneColors[i] = new Color(
-                    (byte)(50 * (i % 4 + 1)),
-                    (byte)(50 * ((i / 4) % 4 + 1)),
-                    (byte)(50 * ((i / 16) % 4) + 1));
+                    (byte)(50 + 90 * (i % 3)),
+                    (byte)(50 + 90 * ((i / 3) % 3)),
+                    (byte)(50 + 90 * ((i / 9) % 3)));
         }
     }
 }
