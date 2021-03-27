@@ -50,15 +50,15 @@ namespace EvoForest
     {
         float _angle, _length;
         Vector2f _root, _end;
-        Gene _gene;
-        public GrowBranch(Branch branch, float param1, float param2, Gene gene)
+        int _geneNumber;
+        public GrowBranch(Branch branch, float param1, float param2, int geneNumber)
         {
             _branch = branch;
             _angle = branch.Angle + (param1 - 0.5f) * (float)Math.PI * branch.GetTree.Mirrored;
             _length = Settings.MinBranchLength + (Settings.MaxBranchLength - Settings.MinBranchLength) * param2;
             _root = branch.End;
             _end = _root + new Vector2f((float)Math.Cos(_angle) * _length, (float)Math.Sin(_angle) * _length);
-            _gene = gene;
+            _geneNumber = geneNumber;
         }
         public override float Cost { get => Settings.BranchCost * _length; }
         public override bool Valid 
@@ -67,7 +67,7 @@ namespace EvoForest
                 && _branch.ValidateMomentum(_length * Settings.BranchMass, (_root + _end) / 2);
         }
         public override void Execute()
-            => new Branch(_branch, _root, _end, _angle, _length, _gene);
+            => new Branch(_branch, _root, _end, _angle, _length, _geneNumber);
     }
     class GrowSeed : BranchAction
     {

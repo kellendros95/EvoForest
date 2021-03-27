@@ -19,14 +19,15 @@ namespace EvoForest
         float _energy, _loss = Settings.BaseTreeLoss;
         bool _dead = false;
         public Dna GetDna { get => _dna; }
-        public Color LeafColor { get => _dna.GetColor; }
-        /*public Color LeafColor { 
+        public Color SpeciesLeafColor { get => _dna.GetColor; }
+        public Color EnergyLeafColor 
+        {
             get
             {
-                byte c = (byte)Math.Min(_energy, 255);
-                return new Color(c, c, c);
+                byte c = (byte)Math.Min(_energy / _loss, 255);
+                return new Color(c, c, 10);
             }
-        }*/
+        }
         public int Mirrored { get => _mirrored; }
         public bool IsDead { get => _dead; }
         public Tree(Dna dna, float x, float energy)
@@ -35,7 +36,7 @@ namespace EvoForest
             World.AddTree(this);
             _energy = energy;
             _mirrored = rnd.Next(2) * 2 - 1;
-            new Branch(this, x, _dna[0]);
+            new Branch(this, x);
         }
         public void AddBranch(Branch b)
         {

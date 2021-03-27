@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SFML.Graphics;
 
 namespace EvoForest
 {
     static class Settings
     {
+        static Color[] _geneColors;
+
         // Общие параметры мира
         public const float MutationChance = 0.2f;
         public const int MaxAge = 2000;
@@ -44,6 +47,16 @@ namespace EvoForest
         public const float MaxSeedEnergy = 40.0f;
         public const float MaxSeedScatter = 2.0f;
         public const float SeedScatterCost = 5.0f;
-        
+        static public Color GeneColor(int i)
+            => _geneColors[i];
+        static public void InitColors()
+        {
+            _geneColors = new Color[64];
+            for (int i = 0; i < 64; i++)
+                _geneColors[i] = new Color(
+                    (byte)(50 * (i % 4 + 1)),
+                    (byte)(50 * ((i / 4) % 4 + 1)),
+                    (byte)(50 * ((i / 16) % 4) + 1));
+        }
     }
 }

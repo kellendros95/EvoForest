@@ -15,9 +15,19 @@ namespace EvoForest
         Vector2f _center;
         float _radius;
         CircleShape _circle;
+        int timeAfterRay = 0;
         public Vector2f Center { get => _center; }
         public Tree GetTree { get => _tree; }
         public float Loss { get => _radius * Settings.LeafLoss; }
+        Color PhotoColor
+        {
+            get
+            {
+                byte g = (byte)Math.Max(0, 255 - 10 * timeAfterRay);
+                byte r = (byte)(64 - g / 4);
+                return new Color(r, g, r);
+            }
+        }
         public bool Intersect(Vector2f center, float radius)
         {
             float dsqr = (center.X - _center.X) * (center.X - _center.X) + (center.Y - _center.Y) * (center.Y - _center.Y);
@@ -30,7 +40,6 @@ namespace EvoForest
             _center = center;
             _circle = new CircleShape(_radius);
             _circle.Position = (_center - new Vector2f(_radius, _radius));
-            _circle.FillColor = _tree.LeafColor;
             branch.AddMass(_radius * _radius * Settings.LeafMass, _center);
             World.AddLeaf(this);
             _tree.AddLeaf(this);
@@ -43,7 +52,22 @@ namespace EvoForest
             float dy = (float)Math.Sqrt(_radius * _radius - dx * dx);
             return _center.Y - dy;
         }
+        public void AddEnergy(float e)
+        {
+            _tree.AddEnergy(e);
+            timeAfterRay = 0;
+        }
         public void Draw(RenderWindow window)
-            => window.Draw(_circle);
+        {
+            _circle.FillColor = Program.LCM switch
+            {
+                LeafColorMode.Species => _tree.SpeciesLeafColor,
+                LeafColorMode.Energy => _tree.EnergyLeafColor,
+                LeafColorMode.Photosythesis => PhotoColor
+            };
+            window.Draw(_circle);
+            if (!Program.Pause)
+                timeAfterRay++;
+        }
     }
 }

@@ -14,6 +14,7 @@ namespace EvoForest
         static Random rnd = new Random();
         Tree _tree;
         Branch _parent;
+        Color actionColor, activeGeneColor, startGeneColor;
         Vector2f _root, _end, _massCenter;
         float _angle, _length, _mass;
         Gene _g;
@@ -41,7 +42,7 @@ namespace EvoForest
             _mass += newMass;
             if (_parent != null) _parent.AddMass(newMass, newMassCenter);
         }
-        public Branch(Branch parent, Vector2f root, Vector2f end, float angle, float length, Gene g)
+        public Branch(Branch parent, Vector2f root, Vector2f end, float angle, float length, int geneNumber)
         {
             _parent = parent;
             _tree = parent.GetTree;
@@ -52,13 +53,16 @@ namespace EvoForest
             _mass = _length * Settings.BranchMass;
             _massCenter = (_root + _end) / 2;
             parent.AddMass(_mass, _massCenter);
-            _g = g;
-            _drawLine = new Vertex[] { new Vertex(_root, Color.White), new Vertex(_end, Color.White) };
+            _g = _tree.GetDna[geneNumber];
+            activeGeneColor = Settings.GeneColor(geneNumber);
+            startGeneColor = Settings.GeneColor(geneNumber);
+            actionColor = Color.White;
+            _drawLine = new Vertex[] { new Vertex(_root, actionColor), new Vertex(_end, actionColor) };
             World.AddBranch(this);
             _tree.AddBranch(this);
             _parent.AddBranch(this);
         }
-        public Branch (Tree tree, float x, Gene g)
+        public Branch (Tree tree, float x)
         {
             _parent = null;
             _tree = tree;
@@ -68,7 +72,9 @@ namespace EvoForest
             _end = new Vector2f(x, Settings.BottomY - _length);
             _mass = _length * Settings.BranchMass;
             _massCenter = (_root + _end) / 2;
-            _g = g;
+            _g = tree.GetDna[0];
+            activeGeneColor = Settings.GeneColor(0);
+            startGeneColor = Settings.GeneColor(0);
             _drawLine = new Vertex[] { new Vertex(_root, Color.White), new Vertex(_end, Color.White) };
             World.AddBranch(this);
             _tree.AddBranch(this);
@@ -99,14 +105,23 @@ namespace EvoForest
         public BranchAction Grow()
         {
             GrowInfo grow = _g.Grow();
-            _g = (grow.nextGene != null) ? _tree.GetDna[(int)grow.nextGene] : null;
+            if (grow.nextGene == null)
+            {
+                _g = null;
+                activeGeneColor = Color.White;
+            }
+            else
+            {
+                _g = _tree.GetDna[(int)grow.nextGene];
+                activeGeneColor = Settings.GeneColor((int)grow.nextGene);
+            }
             switch (grow.growOption)
             {
-                case GrowOption.Drop: _SetColor(Color.Red); return new DropLeaves(this);
-                case GrowOption.Leaf: _SetColor(Color.Green); return new GrowLeaf(this, grow.param1, grow.param2);
-                case GrowOption.Branch: _SetColor(Color.Blue); return new GrowBranch(this, grow.param1, grow.param2, _tree.GetDna[grow.childGene]);
-                case GrowOption.Seed: _SetColor(Color.Yellow); return new GrowSeed(this, grow.param1, grow.param2);
-                default: _SetColor(Color.White); return null;
+                case GrowOption.Drop: actionColor = Color.Red; return new DropLeaves(this);
+                case GrowOption.Leaf: actionColor = Color.Green; return new GrowLeaf(this, grow.param1, grow.param2);
+                case GrowOption.Branch: actionColor = Color.Blue; return new GrowBranch(this, grow.param1, grow.param2, grow.childGene);
+                case GrowOption.Seed: actionColor = Color.Yellow; return new GrowSeed(this, grow.param1, grow.param2);
+                default: actionColor = Color.White; return null;
             };
         }
         void _SetColor(Color c)
@@ -115,6 +130,14 @@ namespace EvoForest
             _drawLine[1].Color = c;
         }
         public void Draw(RenderWindow window)
-            => window.Draw(_drawLine, PrimitiveType.Lines);
+        {
+            _SetColor(Program.BCM switch
+            {
+                BranchColorMode.Action => actionColor,
+                BranchColorMode.ActiveGene => activeGeneColor,
+                BranchColorMode.StartGene => startGeneColor
+            });
+            window.Draw(_drawLine, PrimitiveType.Lines);
+        }
     }
 }

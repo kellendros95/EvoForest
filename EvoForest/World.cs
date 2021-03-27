@@ -72,8 +72,8 @@ namespace EvoForest
                                 (secondLeaf, secondY) = (leaf, (float)y);
                         }
                     }
-            firstLeaf?.GetTree.AddEnergy(Settings.Light * 2);
-            secondLeaf?.GetTree.AddEnergy(Settings.Light);
+            firstLeaf?.AddEnergy(Settings.Light * 2);
+            secondLeaf?.AddEnergy(Settings.Light);
         }
         static void _CleanDead()
         {
@@ -100,10 +100,14 @@ namespace EvoForest
         }
         static public void DrawAll()
         {
+            if (Program.LeafFirst)
+                foreach (List<Leaf> sublist in _leaves)
+                    foreach (Leaf leaf in sublist) leaf.Draw(Program.window);
             foreach (List<Branch> sublist in _branches)
                 foreach (Branch b in sublist) b.Draw(Program.window);
-            foreach (List<Leaf> sublist in _leaves)
-                foreach (Leaf leaf in sublist) leaf.Draw(Program.window);
+            if (!Program.LeafFirst)
+                foreach (List<Leaf> sublist in _leaves)
+                    foreach (Leaf leaf in sublist) leaf.Draw(Program.window);
         }
         static public void Init()
         {
