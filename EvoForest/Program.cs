@@ -7,6 +7,7 @@ namespace EvoForest
 {
     class Program
     {
+        const float MinFrameTime = 1.0f / 60.0f;
         static Clock _frameClock = new Clock();
         static float _frameTime, _resX = 1000, _resY = 600, _centerX = 8, _centerY = 5, _zoom = 50.0f;
         public static RenderWindow window = new RenderWindow(new VideoMode((uint)_resX, (uint)_resY), "Forest");
@@ -32,7 +33,9 @@ namespace EvoForest
             while (window.IsOpen)
             {
                 window.Clear();
-                if (!Pause) World.Step();
+                if (!Pause)
+                    while (_frameClock.ElapsedTime.AsSeconds() < MinFrameTime)
+                        World.Step();
                 World.DrawAll();
                 window.Draw(leftLine, PrimitiveType.Lines);
                 window.Draw(rightLine, PrimitiveType.Lines);
@@ -40,6 +43,7 @@ namespace EvoForest
                 window.Display();
                 window.DispatchEvents();
                 _frameTime = _frameClock.Restart().AsSeconds();
+                Console.WriteLine("FPS = {0}", 1.0f / _frameTime);
             }
         }
         static void Controls(Object sender, EventArgs e)
