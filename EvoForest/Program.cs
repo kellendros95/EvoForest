@@ -10,11 +10,30 @@ namespace EvoForest
         const float MinFrameTime = 1.0f / 60.0f;
         static Clock _frameClock = new Clock();
         static float _frameTime, _resX = 1000, _resY = 600, _centerX = 8, _centerY = 5, _zoom = 50.0f;
-        public static RenderWindow window = new RenderWindow(new VideoMode((uint)_resX, (uint)_resY), "Forest");
+        static public RenderWindow window = new RenderWindow(new VideoMode((uint)_resX, (uint)_resY), "Forest");
+        static LeafColorMode LCM;
+        static BranchColorMode BCM;
         public static bool Pause { get; private set; }
-        static public LeafColorMode LCM { get; private set; }
-        static public BranchColorMode BCM { get; private set; }
+        static public LeafColorMode LeafCM 
+        { 
+            get => LCM; 
+            private set
+            {
+                LCM = value;
+                World.UpdateLCM();
+            }
+        }
+        static public BranchColorMode BranchCM 
+        {
+            get => BCM;
+            private set
+            {
+                BCM = value;
+                World.UpdateBCM();
+            }
+        }
         static public bool LeafFirst { get; private set; }
+        static public int StepsTillDraw { get; private set; }
         static void Main(string[] args)
         {
             Settings.InitColors();
@@ -43,7 +62,6 @@ namespace EvoForest
                 window.Display();
                 window.DispatchEvents();
                 _frameTime = _frameClock.Restart().AsSeconds();
-                Console.WriteLine("FPS = {0}", 1.0f / _frameTime);
             }
         }
         static void Controls(Object sender, EventArgs e)
@@ -58,12 +76,13 @@ namespace EvoForest
             if (Keyboard.IsKeyPressed(Keyboard.Key.PageUp)) _zoom *= 10.0f / 9.0f;
             if (Keyboard.IsKeyPressed(Keyboard.Key.Enter)) World.Init();
             if (Keyboard.IsKeyPressed(Keyboard.Key.P)) Pause = !Pause;
-            if (Keyboard.IsKeyPressed(Keyboard.Key.Num1)) LCM = LeafColorMode.Species;
-            if (Keyboard.IsKeyPressed(Keyboard.Key.Num2)) LCM = LeafColorMode.Energy;
-            if (Keyboard.IsKeyPressed(Keyboard.Key.Num3)) LCM = LeafColorMode.Photosythesis;
-            if (Keyboard.IsKeyPressed(Keyboard.Key.Q)) BCM = BranchColorMode.Action;
-            if (Keyboard.IsKeyPressed(Keyboard.Key.W)) BCM = BranchColorMode.ActiveGene;
-            if (Keyboard.IsKeyPressed(Keyboard.Key.E)) BCM = BranchColorMode.StartGene;
+            if (Keyboard.IsKeyPressed(Keyboard.Key.Num1)) LeafCM = LeafColorMode.Species;
+            if (Keyboard.IsKeyPressed(Keyboard.Key.Num2)) LeafCM = LeafColorMode.Energy;
+            if (Keyboard.IsKeyPressed(Keyboard.Key.Num3)) LeafCM = LeafColorMode.Photosythesis;
+            if (Keyboard.IsKeyPressed(Keyboard.Key.Q)) BranchCM = BranchColorMode.Action;
+            if (Keyboard.IsKeyPressed(Keyboard.Key.W)) BranchCM = BranchColorMode.ActiveGene;
+            if (Keyboard.IsKeyPressed(Keyboard.Key.E)) BranchCM = BranchColorMode.StartGene;
+            if (Keyboard.IsKeyPressed(Keyboard.Key.R)) BranchCM = BranchColorMode.Thickness;
             if (Keyboard.IsKeyPressed(Keyboard.Key.L)) LeafFirst = false;
             if (Keyboard.IsKeyPressed(Keyboard.Key.B)) LeafFirst = true;
             window.SetView(new View(new Vector2f(_centerX, _centerY), new Vector2f(_resX / _zoom, _resY / _zoom)));

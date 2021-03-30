@@ -10,32 +10,30 @@ namespace EvoForest
     class Tree
     {
         static Random rnd = new Random();
-        Dna _dna;
         List<Branch> _branches = new List<Branch>();
         List<Leaf> _leaves = new List<Leaf>();
         Queue<Branch> growQueue = new Queue<Branch>();
         BranchAction activeAction;
-        int _mirrored, _age = 0;
         float _energy, _loss = Settings.BaseTreeLoss;
-        bool _dead = false;
-        public Dna GetDna { get => _dna; }
-        public Color SpeciesLeafColor { get => _dna.GetColor; }
+        public Dna DNA { get; private set; }
+        public Color SpeciesLeafColor { get => DNA.GetColor; }
         public Color EnergyLeafColor 
         {
             get
             {
-                byte c = (byte)Math.Min(_energy / _loss, 255);
-                return new Color(c, c, 10);
+                byte r = (byte)Math.Min(_energy / _loss, 255);
+                byte b = (byte)(64 - r / 4);
+                return new Color(r, r, b);
             }
         }
-        public int Mirrored { get => _mirrored; }
-        public bool IsDead { get => _dead; }
+        public int Mirrored { get; private set; }
+        public bool IsDead { get; private set; }
         public Tree(Dna dna, float x, float energy)
         {
-            _dna = dna;
+            DNA = dna;
             World.AddTree(this);
             _energy = energy;
-            _mirrored = rnd.Next(2) * 2 - 1;
+            Mirrored = rnd.Next(2) * 2 - 1;
             new Branch(this, x);
         }
         public void AddBranch(Branch b)
@@ -64,7 +62,7 @@ namespace EvoForest
         public void Step()
         {
             _energy -= _loss;
-            _age++;
+            //_age++;
             if (activeAction == null)
             {
                 Branch activeBranch = growQueue.Dequeue();
@@ -81,7 +79,8 @@ namespace EvoForest
                     activeAction = null;
                 }
             }
-            if ((_energy < 0) || (_age > Settings.MaxAge) || ((activeAction == null) && (growQueue.Count == 0))) _dead = true;
+            if ((_energy < 0)/* || (_age > Settings.MaxAge)*/ || ((activeAction == null) && (growQueue.Count == 0)))
+                IsDead = true;
         }
     }
 }

@@ -14,6 +14,7 @@ namespace EvoForest
     {
         Action,
         ActiveGene,
-        StartGene
+        StartGene,
+        Thickness
     }
 }

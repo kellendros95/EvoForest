@@ -12,6 +12,7 @@ namespace EvoForest
         Drop,
         Leaf,
         Seed,
-        Branch
+        Branch,
+        Thicken
     }
 }

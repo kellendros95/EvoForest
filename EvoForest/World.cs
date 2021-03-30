@@ -35,7 +35,7 @@ namespace EvoForest
             for (int i = -1; i <= 1; i++)
                 if ((ind + i >= 0) && (ind + i < Settings.MaxX))
                     foreach (Leaf leaf in _leaves[ind + i])
-                        if ((t != leaf.GetTree) && leaf.Intersect(center, radius)) 
+                        if ((t != leaf.ParentTree) && leaf.Intersect(center, radius)) 
                             return false;
             return true;
         }
@@ -80,11 +80,11 @@ namespace EvoForest
             _trees.RemoveAll(t => t.IsDead);
             foreach (var sublist in _branches)
                 for (int j = sublist.Count - 1; j >= 0; j--)
-                    if (sublist[j].GetTree.IsDead)
+                    if (sublist[j].ParentTree.IsDead)
                         sublist.RemoveAt(j);
             foreach (var sublist in _leaves)
                 for (int j = sublist.Count - 1; j >= 0; j--)
-                    if (sublist[j].GetTree.IsDead)
+                    if (sublist[j].ParentTree.IsDead)
                         sublist.RemoveAt(j);
         }
         static public void Step()
@@ -102,12 +102,15 @@ namespace EvoForest
         {
             if (Program.LeafFirst)
                 foreach (List<Leaf> sublist in _leaves)
-                    foreach (Leaf leaf in sublist) leaf.Draw(Program.window);
+                    foreach (Leaf leaf in sublist)
+                        leaf.Draw(Program.window);
             foreach (List<Branch> sublist in _branches)
-                foreach (Branch b in sublist) b.Draw(Program.window);
+                foreach (Branch b in sublist)
+                    b.Draw(Program.window);
             if (!Program.LeafFirst)
                 foreach (List<Leaf> sublist in _leaves)
-                    foreach (Leaf leaf in sublist) leaf.Draw(Program.window);
+                    foreach (Leaf leaf in sublist)
+                        leaf.Draw(Program.window);
         }
         static public void Init()
         {
@@ -121,6 +124,18 @@ namespace EvoForest
             }
             for (int i = 0; i < Settings.MaxX - 1; i++) 
                 new Tree(new Dna(), 0.5f + i, Settings.InitTreeEnergy);
+        }
+        static public void UpdateBCM()
+        {
+            foreach (List<Branch> sublist in _branches)
+                foreach (Branch b in sublist)
+                    b.UpdateColor();
+        }
+        static public void UpdateLCM()
+        {
+            foreach (List<Leaf> sublist in _leaves)
+                foreach (Leaf leaf in sublist)
+                    leaf.UpdateColor();
         }
     }
 }

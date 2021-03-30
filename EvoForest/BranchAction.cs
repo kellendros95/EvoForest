@@ -33,15 +33,15 @@ namespace EvoForest
         public GrowLeaf(Branch branch, float param1, float param2)
         {
             _branch = branch;
-            _angle = branch.Angle + (param1 - 0.5f) * (float)Math.PI * branch.GetTree.Mirrored;
+            _angle = branch.Angle + (param1 - 0.5f) * (float)Math.PI * branch.ParentTree.Mirrored;
             _radius = Settings.MinLeafRadius + (Settings.MaxLeafRadius - Settings.MinLeafRadius) * param2;
             _center = branch.End + new Vector2f((float)Math.Cos(_angle) * _radius, (float)Math.Sin(_angle) * _radius);
         }
         public override float Cost { get => Settings.LeafCost * _radius; }
         public override bool Valid 
         {
-            get => World.ValidateLeaf(_branch.GetTree, _center, _radius)
-                && _branch.ValidateMomentum(_radius * _radius * Settings.LeafMass, _center);
+            get => World.ValidateLeaf(_branch.ParentTree, _center, _radius)
+                && _branch.ValidateMassAndMomentum(_radius * _radius * Settings.LeafMass, _center);
         }
         public override void Execute()
             => new Leaf(_branch, _center, _radius);
@@ -54,7 +54,7 @@ namespace EvoForest
         public GrowBranch(Branch branch, float param1, float param2, int geneNumber)
         {
             _branch = branch;
-            _angle = branch.Angle + (param1 - 0.5f) * (float)Math.PI * branch.GetTree.Mirrored;
+            _angle = branch.Angle + (param1 - 0.5f) * (float)Math.PI * branch.ParentTree.Mirrored;
             _length = Settings.MinBranchLength + (Settings.MaxBranchLength - Settings.MinBranchLength) * param2;
             _root = branch.End;
             _end = _root + new Vector2f((float)Math.Cos(_angle) * _length, (float)Math.Sin(_angle) * _length);
@@ -64,7 +64,7 @@ namespace EvoForest
         public override bool Valid 
         {
             get => World.ValidateBranch(_branch, _root, _end)
-                && _branch.ValidateMomentum(_length * Settings.BranchMass, (_root + _end) / 2);
+                && _branch.ValidateMassAndMomentum(_length * Settings.BranchMass, (_root + _end) / 2);
         }
         public override void Execute()
             => new Branch(_branch, _root, _end, _angle, _length, _geneNumber);
@@ -80,12 +80,30 @@ namespace EvoForest
             while ((_x < 0) || (_x >= Settings.MaxX))
                 _x = branch.End.X + (float)(rnd.NextDouble() - 0.5) * _scatter;
             _energy = Settings.MaxSeedEnergy * param2;
-            _dna = branch.GetTree.GetDna.Child();
+            _dna = branch.DNA.Child();
             _cost = _energy / Settings.SeedEnergyEfficiency + param1 * Settings.SeedScatterCost;
         }
         public override float Cost { get => _cost; }
         public override bool Valid { get => true; }
         public override void Execute()
             => new Tree(_dna, _x, _energy);
+    }
+    class ThickenBranch : BranchAction
+    {
+        float _param;
+        public ThickenBranch(Branch branch, float param)
+        {
+            _branch = branch;
+            _param = param;
+        }
+        public override float Cost { get => _branch.Length * _param * Settings.BranchCost; }
+        public override bool Valid 
+        {
+            get => (_branch.Thickness + _param < Settings.MaxThickness)
+                && _branch.ValidateMassAndMomentum(Settings.BranchMass * _branch.Length * _param,
+                    (_branch.Root + _branch.End) / 2);
+        }
+        public override void Execute()
+            => _branch.Thicken(_param);
     }
 }

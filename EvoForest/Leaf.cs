@@ -11,14 +11,12 @@ namespace EvoForest
 {
     class Leaf
     {
-        Tree _tree;
-        Vector2f _center;
-        float _radius;
         CircleShape _circle;
         int timeAfterRay = 0;
-        public Vector2f Center { get => _center; }
-        public Tree GetTree { get => _tree; }
-        public float Loss { get => _radius * Settings.LeafLoss; }
+        public Vector2f Center { get; private set; }
+        public float Radius { get; private set; }
+        public Tree ParentTree { get; private set; }
+        public float Loss { get => Radius * Settings.LeafLoss; }
         Color PhotoColor
         {
             get
@@ -30,44 +28,50 @@ namespace EvoForest
         }
         public bool Intersect(Vector2f center, float radius)
         {
-            float dsqr = (center.X - _center.X) * (center.X - _center.X) + (center.Y - _center.Y) * (center.Y - _center.Y);
-            return dsqr < radius + _radius;
+            float dsqr = (center.X - Center.X) * (center.X - Center.X) + (center.Y - Center.Y) * (center.Y - Center.Y);
+            return dsqr < radius + Radius;
+        }
+        public void UpdateColor()
+            => _circle.FillColor = Program.LeafCM switch
+            {
+                LeafColorMode.Species => ParentTree.SpeciesLeafColor,
+                LeafColorMode.Energy => ParentTree.EnergyLeafColor,
+                LeafColorMode.Photosythesis => PhotoColor
+            };
+        void _DesignCircle()
+        {
+            _circle = new CircleShape(Radius);
+            _circle.Origin = new Vector2f(Radius, Radius);
+            _circle.Position = Center;
+            UpdateColor();
         }
         public Leaf(Branch branch, Vector2f center, float radius)
         {
-            _tree = branch.GetTree;
-            _radius = radius;
-            _center = center;
-            _circle = new CircleShape(_radius);
-            _circle.Position = (_center - new Vector2f(_radius, _radius));
-            branch.AddMass(_radius * _radius * Settings.LeafMass, _center);
+            ParentTree = branch.ParentTree;
+            Radius = radius;
+            Center = center;
+            _DesignCircle();
+            branch.AddMass(Radius * Radius * Settings.LeafMass, Center);
             World.AddLeaf(this);
-            _tree.AddLeaf(this);
+            ParentTree.AddLeaf(this);
             branch.AddLeaf(this);
         }
         public float? RayIntersectionY(float x)
         {
-            float dx = (float)Math.Abs(_center.X - x);
-            if (dx > _radius) return null;
-            float dy = (float)Math.Sqrt(_radius * _radius - dx * dx);
-            return _center.Y - dy;
+            float dx = (float)Math.Abs(Center.X - x);
+            if (dx > Radius) return null;
+            float dy = (float)Math.Sqrt(Radius * Radius - dx * dx);
+            return Center.Y - dy;
         }
         public void AddEnergy(float e)
         {
-            _tree.AddEnergy(e);
+            ParentTree.AddEnergy(e);
             timeAfterRay = 0;
         }
         public void Draw(RenderWindow window)
         {
-            _circle.FillColor = Program.LCM switch
-            {
-                LeafColorMode.Species => _tree.SpeciesLeafColor,
-                LeafColorMode.Energy => _tree.EnergyLeafColor,
-                LeafColorMode.Photosythesis => PhotoColor
-            };
             window.Draw(_circle);
-            if (!Program.Pause)
-                timeAfterRay++;
+            timeAfterRay += Program.StepsTillDraw;
         }
     }
 }
