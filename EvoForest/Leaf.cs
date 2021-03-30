@@ -21,7 +21,7 @@ namespace EvoForest
         {
             get
             {
-                byte g = (byte)Math.Max(0, 255 - 10 * timeAfterRay);
+                byte g = (byte)Math.Max(0, 255 - 50 * timeAfterRay);
                 byte r = (byte)(64 - g / 4);
                 return new Color(r, g, r);
             }
@@ -31,19 +31,11 @@ namespace EvoForest
             float dsqr = (center.X - Center.X) * (center.X - Center.X) + (center.Y - Center.Y) * (center.Y - Center.Y);
             return dsqr < radius + Radius;
         }
-        public void UpdateColor()
-            => _circle.FillColor = Program.LeafCM switch
-            {
-                LeafColorMode.Species => ParentTree.SpeciesLeafColor,
-                LeafColorMode.Energy => ParentTree.EnergyLeafColor,
-                LeafColorMode.Photosythesis => PhotoColor
-            };
         void _DesignCircle()
         {
             _circle = new CircleShape(Radius);
             _circle.Origin = new Vector2f(Radius, Radius);
             _circle.Position = Center;
-            UpdateColor();
         }
         public Leaf(Branch branch, Vector2f center, float radius)
         {
@@ -70,6 +62,12 @@ namespace EvoForest
         }
         public void Draw(RenderWindow window)
         {
+            _circle.FillColor = Program.LeafCM switch
+            {
+                LeafColorMode.Species => ParentTree.SpeciesLeafColor,
+                LeafColorMode.Energy => ParentTree.EnergyLeafColor,
+                LeafColorMode.Photosythesis => PhotoColor
+            };
             window.Draw(_circle);
             timeAfterRay += Program.StepsTillDraw;
         }

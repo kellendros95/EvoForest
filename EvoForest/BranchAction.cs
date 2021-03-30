@@ -96,7 +96,7 @@ namespace EvoForest
             _branch = branch;
             _param = param;
         }
-        public override float Cost { get => _branch.Length * (0.5f + _param) * Settings.BranchCost; }
+        public override float Cost { get => _branch.Length * (0.5f + _param) * Settings.BranchCost / 2; }
         public override bool Valid 
         {
             get => (_branch.Thickness + 0.5f + _param < Settings.MaxThickness)

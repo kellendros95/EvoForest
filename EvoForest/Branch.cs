@@ -28,7 +28,7 @@ namespace EvoForest
         public Vector2f End { get; private set; }
         public Vector2f Root { get; private set; }
         public bool Active { get => _g != null; }
-        public float Loss { get => Length * Settings.BranchLoss * Thickness; }
+        public float Loss { get; private set; }
         public bool ValidateMassAndMomentum(float newMass, Vector2f newMassCenter)
         {
             Vector2f sumCenter = (_massCenter * _mass + newMassCenter * newMass) / (_mass + newMass);
@@ -45,6 +45,7 @@ namespace EvoForest
             AddMass(param * Length * Settings.BranchMass, (Root + End) / 2);
             _drawRect.Size = new Vector2f(Length, Thickness * Settings.ThicknessScale);
             _drawRect.Origin = new Vector2f(Length / 2, Thickness * Settings.ThicknessScale / 2);
+            Loss = Length * Settings.BranchLoss * (Thickness / 2 + 0.5f);
         }
         public void AddMass(float newMass, Vector2f newMassCenter)
         {
@@ -52,21 +53,12 @@ namespace EvoForest
             _mass += newMass;
             if (Parent != null) Parent.AddMass(newMass, newMassCenter);
         }
-        public void UpdateColor()
-            => _drawRect.FillColor = Program.BranchCM switch
-            {
-                BranchColorMode.Action => actionColor,
-                BranchColorMode.ActiveGene => activeGeneColor,
-                BranchColorMode.StartGene => startGeneColor,
-                BranchColorMode.Thickness => new Color((byte)(Thickness * 25), 25, (byte)(Thickness * 25))
-            };
         void _DesignRectangle()
         {
             _drawRect = new RectangleShape(new Vector2f(Length, Thickness * Settings.ThicknessScale));
             _drawRect.Origin = new Vector2f(Length / 2, Thickness * Settings.ThicknessScale / 2);
             _drawRect.Position = (Root + End) / 2;
             _drawRect.Rotation = (float)(180.0 / Math.PI) * Angle;
-            UpdateColor();
         }
         public Branch(Branch parent, Vector2f root, Vector2f end, float angle, float length, int geneNumber)
         {
@@ -79,6 +71,7 @@ namespace EvoForest
             Angle = angle;
             Length = length;
             Thickness = 1.0f;
+            Loss = Length * Settings.BranchLoss;
             _mass = Length * Settings.BranchMass;
             _massCenter = (Root + End) / 2;
             parent.AddMass(_mass, _massCenter);
@@ -100,6 +93,7 @@ namespace EvoForest
             Length = (Settings.MinBranchLength + Settings.MaxBranchLength) / 2;
             Angle = -(float)Math.PI / 2;
             Thickness = 1.0f;
+            Loss = Length * Settings.BranchLoss;
             End = new Vector2f(x, Settings.BottomY - Length);
             _mass = Length * Settings.BranchMass;
             _massCenter = (Root + End) / 2;
@@ -155,10 +149,19 @@ namespace EvoForest
                 _ => (Color.White, null)
             };
             actionColor = action.Item1;
-            UpdateColor();
             return action.Item2;
         }
         public void Draw(RenderWindow window)
-            => window.Draw(_drawRect);
+        {
+            _drawRect.FillColor = Program.BranchCM switch
+            {
+                BranchColorMode.Action => actionColor,
+                BranchColorMode.ActiveGene => activeGeneColor,
+                BranchColorMode.StartGene => startGeneColor,
+                BranchColorMode.Thickness => new Color((byte)(Thickness * 25), 25, (byte)(Thickness * 25)),
+                BranchColorMode.Mass => new Color((byte)(255 * _mass / (Settings.MaxMass * Thickness)), 50, 50)
+            };
+            window.Draw(_drawRect);
+        }
     }
 }

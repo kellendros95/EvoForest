@@ -11,27 +11,9 @@ namespace EvoForest
         static Clock _frameClock = new Clock();
         static float _frameTime, _resX = 1000, _resY = 600, _centerX = 8, _centerY = 5, _zoom = 50.0f;
         static public RenderWindow window = new RenderWindow(new VideoMode((uint)_resX, (uint)_resY), "Forest");
-        static LeafColorMode LCM;
-        static BranchColorMode BCM;
         public static bool Pause { get; private set; }
-        static public LeafColorMode LeafCM 
-        { 
-            get => LCM; 
-            private set
-            {
-                LCM = value;
-                World.UpdateLCM();
-            }
-        }
-        static public BranchColorMode BranchCM 
-        {
-            get => BCM;
-            private set
-            {
-                BCM = value;
-                World.UpdateBCM();
-            }
-        }
+        static public LeafColorMode LeafCM { get; private set; }
+        static public BranchColorMode BranchCM { get; private set; }
         static public bool LeafFirst { get; private set; }
         static public int StepsTillDraw { get; private set; }
         static void Main(string[] args)
@@ -42,8 +24,8 @@ namespace EvoForest
             window.KeyPressed += Controls;
             window.SetView(new View(new Vector2f(_centerX, _centerY), new Vector2f(_resX / _zoom, _resY / _zoom)));
             World.Init();
-            LCM = LeafColorMode.Species;
-            BCM = BranchColorMode.Action;
+            LeafCM = LeafColorMode.Species;
+            BranchCM = BranchColorMode.Action;
             LeafFirst = false;
             Pause = false;
             Vertex[] leftLine = new Vertex[] { new Vertex(new Vector2f(0, -500), Color.White), new Vertex(new Vector2f(0, 500), Color.White) };
@@ -83,6 +65,7 @@ namespace EvoForest
             if (Keyboard.IsKeyPressed(Keyboard.Key.W)) BranchCM = BranchColorMode.ActiveGene;
             if (Keyboard.IsKeyPressed(Keyboard.Key.E)) BranchCM = BranchColorMode.StartGene;
             if (Keyboard.IsKeyPressed(Keyboard.Key.R)) BranchCM = BranchColorMode.Thickness;
+            if (Keyboard.IsKeyPressed(Keyboard.Key.T)) BranchCM = BranchColorMode.Mass;
             if (Keyboard.IsKeyPressed(Keyboard.Key.L)) LeafFirst = false;
             if (Keyboard.IsKeyPressed(Keyboard.Key.B)) LeafFirst = true;
             window.SetView(new View(new Vector2f(_centerX, _centerY), new Vector2f(_resX / _zoom, _resY / _zoom)));

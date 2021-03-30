@@ -125,17 +125,5 @@ namespace EvoForest
             for (int i = 0; i < Settings.MaxX - 1; i++) 
                 new Tree(new Dna(), 0.5f + i, Settings.InitTreeEnergy);
         }
-        static public void UpdateBCM()
-        {
-            foreach (List<Branch> sublist in _branches)
-                foreach (Branch b in sublist)
-                    b.UpdateColor();
-        }
-        static public void UpdateLCM()
-        {
-            foreach (List<Leaf> sublist in _leaves)
-                foreach (Leaf leaf in sublist)
-                    leaf.UpdateColor();
-        }
     }
 }

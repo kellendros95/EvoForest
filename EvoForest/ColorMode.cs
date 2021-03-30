@@ -15,6 +15,7 @@ namespace EvoForest
         Action,
         ActiveGene,
         StartGene,
-        Thickness
+        Thickness,
+        Mass
     }
 }
