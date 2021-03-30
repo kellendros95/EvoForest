@@ -96,14 +96,14 @@ namespace EvoForest
             _branch = branch;
             _param = param;
         }
-        public override float Cost { get => _branch.Length * _param * Settings.BranchCost; }
+        public override float Cost { get => _branch.Length * (0.5f + _param) * Settings.BranchCost; }
         public override bool Valid 
         {
-            get => (_branch.Thickness + _param < Settings.MaxThickness)
-                && _branch.ValidateMassAndMomentum(Settings.BranchMass * _branch.Length * _param,
+            get => (_branch.Thickness + 0.5f + _param < Settings.MaxThickness)
+                && _branch.ValidateMassAndMomentum(Settings.BranchMass * _branch.Length * (0.5f + _param),
                     (_branch.Root + _branch.End) / 2);
         }
         public override void Execute()
-            => _branch.Thicken(_param);
+            => _branch.Thicken(0.5f + _param);
     }
 }

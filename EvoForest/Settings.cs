@@ -13,8 +13,6 @@ namespace EvoForest
 
         // Общие параметры мира
         public const float MutationChance = 0.01f;
-        //public const int MaxAge = 2000;
-        //public const int YearLength = 100;
         public const int BottomY = 10;
         public const int MaxX = 200;
         public const float Light = 0.5f;
